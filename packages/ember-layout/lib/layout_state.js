@@ -63,11 +63,11 @@ Ember.LayoutState = Ember.State.extend({
   
   // Recursively find the first parent layout state
   // with a view to append to
-  ancestor: function() {
+  ancestor: Ember.computed(function() {
     var state = this.get('parentState');
     while(state && !state.get('view')) {
       state = state.get('parentState');
     }
     return state;
-  }.property()
+  }).property()
 });
