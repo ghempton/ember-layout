@@ -7,9 +7,6 @@ Ember.Handlebars.YieldContainerView = Ember.ContainerView.extend({
     this._super();
     var layout = this.get('blockContainer');
     var yieldContentPath = 'yieldContent.' + this.yieldName;
-    this.addObserver('_childViews', function() {
-      debugger;
-    });
     layout.addObserver(yieldContentPath, this, 'contentDidUpdate');
     this.contentDidUpdate();
   },
@@ -58,7 +55,6 @@ Ember.Handlebars.yieldHelper = Ember.Object.create({
     var currentView = Ember.Handlebars.yieldHelper._findContainingTemplateView(options.data.view);
     
     if (currentView && currentView.yieldContent) {
-      //debugger;
       //options.hash.templateContext = Ember.mixin(currentView.templateContext, options.hash);
       //options.hash.template = currentView.yieldContent;
       options.hash.blockContainer = currentView;
