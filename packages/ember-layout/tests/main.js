@@ -63,7 +63,7 @@ module('Ember.LayoutState', {
 
 test("State Re-enter", function() {
   
-  var stateManager = Ember.StateManager.create({
+  stateManager = Ember.StateManager.create({
     rootElement: '#qunit-fixture',
     main: Ember.LayoutState.create({
       view: Ember.LayoutView.create({
