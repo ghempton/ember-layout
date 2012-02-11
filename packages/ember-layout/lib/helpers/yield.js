@@ -83,7 +83,6 @@ Ember.Handlebars.contentForHelper = Ember.Object.create({
     var currentView = findContainingTemplateView(options.data.view);
     
     if (currentView && currentView.yieldContent) {
-      // options.hash.templateContext = Ember.mixin(currentView.templateContext, options.hash);
       options.hash.blockContainer = currentView;
   
       // We pass this proxy into the default view helper
