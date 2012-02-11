@@ -16,7 +16,7 @@ module('Ember.LayoutView', {
   }
 });
 
-test("Nested Layouts", function() {
+test("Nested layouts", function() {
   
   view = Ember.LayoutView.create({
     elementId: 'outer',
@@ -41,11 +41,53 @@ test("Nested Layouts", function() {
   });
   
   var yieldContainer = view.get('_childViews').objectAt(0);
-  ok(yieldContainer && yieldContainer instanceof Ember.Handlebars.YieldContainerView, "Yield container should exist.")
+  ok(yieldContainer && yieldContainer instanceof Ember.Handlebars.YieldContainerView, "Yield container should exist.");
   
   var innerYieldContainer = innerView.get('_childViews').objectAt(0);
   ok(innerYieldContainer && innerYieldContainer instanceof Ember.Handlebars.YieldContainerView, "Yield container should exist.")
 });
+
+test("Named yield", function() {
+  view = Ember.LayoutView.create({
+    elementId: 'outer',
+    template: Ember.Handlebars.compile("<section>{{yield header}} {{yield}}</section>")
+  });
+  
+  var headerView = Ember.View.create({
+    elementId: 'inner',
+    template: Ember.Handlebars.compile("<h1>Heads up!</h1>")
+  });
+  
+  view.setPath('yieldContent.header', headerView);
+  
+  Ember.run(function() {
+    appendView();
+  });
+  
+  var headerYieldContainer = view.get('_childViews').objectAt(0);
+  ok(headerYieldContainer && headerYieldContainer instanceof Ember.Handlebars.YieldContainerView, "Yield container should exist.");
+  
+  var yieldContainer = view.get('_childViews').objectAt(1);
+  ok(yieldContainer && yieldContainer instanceof Ember.Handlebars.YieldContainerView, "Yield container should exist.");
+  
+  equals(headerYieldContainer.get('_childViews').objectAt(0), headerView, "named yield container should contain headerView");
+  equals(yieldContainer.get('_childViews').get('length'), 0, "default yield should have no content")
+});
+
+test("Default contentFor should set content", function() {
+  view = Ember.LayoutView.create({
+    elementId: 'outer',
+    template: Ember.Handlebars.compile("<section><header>{{yield}}</header> {{#contentFor}}<h1>This is some content</h1>{{/contentFor}}</section>")
+  });
+  
+  Ember.run(function() {
+    appendView();
+  });
+  
+  ok(/<header>.*<h1>This is some content<\/h1>.*<\/header>/.test(view.$().html()), "content should be correctly set");
+  
+});
+
 
 
 var stateManager;
@@ -61,7 +103,7 @@ module('Ember.LayoutState', {
   }
 });
 
-test("State Re-enter", function() {
+test("State re-enter", function() {
   
   stateManager = Ember.StateManager.create({
     rootElement: '#qunit-fixture',
