@@ -99,11 +99,38 @@ module('Ember.LayoutState', {
 
   teardown: function() {
     if (stateManager) stateManager.destroy();
+    if (view) view.destroy();
     window.TemplateTests = undefined;
+    
   }
 });
 
-test("State re-enter", function() {
+test("Should respect stateManager.rootLayout", function() {
+  view = Ember.LayoutView.create({
+    template: Ember.Handlebars.compile('<div id="content">{{yield}}</div>')
+  });
+  
+  Ember.run(function() {
+    appendView();
+  });
+  
+  stateManager = Ember.StateManager.create({
+    rootLayout: view,
+    main: Ember.LayoutState.create({
+      view: Ember.LayoutView.create({
+        template: Ember.Handlebars.compile("<p>This is some content.</p>")
+      })
+    })
+  });
+  
+  Ember.run(function() {
+    stateManager.goToState('main');
+  });
+  
+  ok(/<p>This is some content.<\/p>/.test(view.$().html()), "content should be inserted.");
+});
+
+test("Should re-enter states succesfully", function() {
   
   stateManager = Ember.StateManager.create({
     rootElement: '#qunit-fixture',

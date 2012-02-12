@@ -8,9 +8,6 @@ Ember.LayoutState = Ember.State.extend({
   init: function() {
     var view = get(this, 'view');
     if(view) {
-      // Right now all components are bound to the global context
-      // var context = get(this, 'context');
-      // set(component, 'context', GT.context);
       layoutStates = get(view, 'layoutStates');
       set(this, 'states', layoutStates);
     }
@@ -27,11 +24,11 @@ Ember.LayoutState = Ember.State.extend({
       ember_assert('view must be an Ember.View', view instanceof Ember.View);
 
       var ancestor = this.get('ancestor');
-      // if there is another component state in the hierarchy,
-      // we append to the 'childComponent' view
-      if(ancestor) {
-        var ancestorView = get(ancestor, 'view');
-        var yieldContent = ancestorView.get('yieldContent');
+      // if there is another layout state in the hierarchy, we set
+      // the yieldContent of it's layout
+      var layout = ancestor && get(ancestor, 'view') || stateManager.get('rootLayout');
+      if(layout) {
+        var yieldContent = layout.get('yieldContent');
         yieldContent.set(this.contentKey, view);
       }
       // otherwise we just append to the rootElement on the
