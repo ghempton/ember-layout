@@ -50,7 +50,7 @@ Ember.Layout also integrates with Ember's StateManager (and consequently, [Ember
 
 ```
 App.stateManager = Ember.StateManager.create({
-  rootLayout = App.layout,
+  rootLayout: App.layout,
   section1: Ember.LayoutState.create({
     view: App.section1
   }),
