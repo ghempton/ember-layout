@@ -104,6 +104,8 @@ test("Children contentFor helpers should set parent layout yields", function() {
   });
   
   ok(/<header>.*Brain.*<\/header>.*Torso.*/.test(view.$().html()), "content should be correctly set");
+  
+  debugger;
 });
 
 
@@ -198,6 +200,36 @@ test("Should re-enter states succesfully", function() {
     ok(stateManager.main.section2.active, 'section2 state is acive');
     ok(/.*Section 2.*/.test($('#qunit-fixture').html()), "section2 content should be set correctly");
   }
+  
+});
+
+test("LayoutViews can set sub-states using the layoutState property", function() {
+  
+  var Main = Ember.LayoutView.extend({
+    elementId: 'main',
+    template: Ember.Handlebars.compile("<div>{{yield}}</div>"),
+    layoutStates: Em.Object.create({
+      section1: Em.LayoutState.create({
+        viewClass: Ember.View.extend({
+          template: Ember.Handlebars.compile("Section 1")
+        })
+      })
+    })
+  });
+  
+  stateManager = Ember.StateManager.create({
+    rootElement: '#qunit-fixture',
+    main: Ember.LayoutState.create({
+      viewClass: Main
+    })
+  });
+  
+  Ember.run(function() {
+    stateManager.goToState('main.section1');
+  });
+  
+  ok(stateManager.main.states.section1.active, 'section1 state is acive');
+  ok(/.*Section 1*/.test($('#qunit-fixture').html()), "section1 content should be set correctly");
   
 });
 

@@ -6,9 +6,13 @@ Ember.LayoutState = Ember.State.extend({
   contentKey: '_default',
   
   init: function() {
+    // This is currently experimental. We allow
+    // the view itself to define it's substates
+    // for better encapsulation. To do this, set
+    // the layoutStates property.
     var viewClass = get(this, 'viewClass');
     if(viewClass) {
-      layoutStates = get(viewClass, 'layoutStates');
+      var layoutStates = get(viewClass, 'proto').layoutStates;
       set(this, 'states', layoutStates);
     }
     
