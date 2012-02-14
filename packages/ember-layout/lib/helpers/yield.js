@@ -6,21 +6,24 @@ Ember.Handlebars.YieldContainerView = Ember.ContainerView.extend({
   init: function() {
     this._super();
     var layout = this.get('blockContainer');
-    var yieldContentPath = 'yieldContent.' + this.yieldName;
-    layout.addObserver(yieldContentPath, this, 'contentDidUpdate');
+    var yieldContent = layout.get('yieldContent');
+    yieldContent.addObserver(this.get('yieldName'), this, 'contentDidUpdate');
     this.contentDidUpdate();
   },
   contentDidUpdate: function() {
     var layout = this.get('blockContainer');
-    var yieldContentPath = 'yieldContent.' + this.yieldName;
-    var view = layout.getPath(yieldContentPath);
+    var yieldContent = layout.get('yieldContent');
+    var view = yieldContent.get(this.get('yieldName'));
     var childViews = this.get('_childViews');
-    if(!childViews) {
-      return;
-    }
     var len = childViews.get('length');
     var views = view ? [view] : [];
     childViews.replace(0, len, views);
+  },
+  destroy: function() {
+    this._super();
+    var layout = this.get('blockContainer');
+    var yieldContent = layout.get('yieldContent');
+    yieldContent.removeObserver(this.get('yieldName'), this, 'contentDidUpdate');
   }
 });
 
@@ -31,23 +34,29 @@ Ember.Handlebars.YieldContainerView = Ember.ContainerView.extend({
   // blockContainer: null   
 // });
 
+// function findContainingLayout(view) {
+  // // We are using _parentView here, because we need to go through the virtual YieldViews, so we can treat them differently.
+  // if (!view) {
+    // return view;
+  // }
+  // else if (view instanceof Ember.Handlebars.YieldContainerView) {
+    // var blockContainer = Ember.get(view, 'blockContainer');
+    // ember_assert("YieldContainerView representing the current block doesn't have a blockContainer set.", blockContainer);
+    // return this._findContainingTemplateView(Ember.get(blockContainer, '_parentView'));
+  // }
+  // else if (view.isVirtual) {
+    // return this._findContainingTemplateView(Ember.get(view, '_parentView'));
+  // }
+  // else {
+    // return view;
+  // }
+// }
 
-function findContainingTemplateView(view) {
-  // We are using _parentView here, because we need to go through the virtual YieldViews, so we can treat them differently.
-  if (!view) {
-    return view;
+function findContainingLayout(view) {
+  if(!(view instanceof Ember.LayoutView)) {
+    view = view.nearestInstanceOf(Ember.LayoutView);
   }
-  else if (view instanceof Ember.Handlebars.YieldContainerView) {
-    var blockContainer = Ember.get(view, 'blockContainer');
-    ember_assert("YieldContainerView representing the current block doesn't have a blockContainer set.", blockContainer);
-    return this._findContainingTemplateView(Ember.get(blockContainer, '_parentView'));
-  }
-  else if (view.isVirtual) {
-    return this._findContainingTemplateView(Ember.get(view, '_parentView'));
-  }
-  else {
-    return view;
-  }
+  return view;
 }
 
 Ember.Handlebars.yieldHelper = Ember.Object.create({
@@ -59,11 +68,11 @@ Ember.Handlebars.yieldHelper = Ember.Object.create({
       name = "_default";
     }
       
-    var currentView = findContainingTemplateView(options.data.view);
+    var layout = findContainingLayout(options.data.view);
     
-    if (currentView && currentView.yieldContent) {
+    if (layout) {
       options.hash.yieldName = name;
-      options.hash.blockContainer = currentView;
+      options.hash.blockContainer = layout;
       return Ember.Handlebars.helpers.view.call(this, 'Ember.Handlebars.YieldContainerView', options);
     }
   }
@@ -80,10 +89,10 @@ Ember.Handlebars.contentForHelper = Ember.Object.create({
       name = "_default";
     }
     
-    var currentView = findContainingTemplateView(options.data.view);
+    var layout = findContainingLayout(options.data.view);
     
-    if (currentView && currentView.yieldContent) {
-      options.hash.blockContainer = currentView;
+    if (layout) {
+      options.hash.blockContainer = layout;
   
       // We pass this proxy into the default view helper
       // to conform to the convention of assigning the
@@ -91,7 +100,7 @@ Ember.Handlebars.contentForHelper = Ember.Object.create({
       var viewProxy = Ember.Object.create({
         appendChild: function(view, options) {
           view = view.create(options);
-          currentView.setPath('yieldContent.' + name, view);
+          layout.setPath('yieldContent.' + name, view);
         }
       });
       

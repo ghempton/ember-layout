@@ -88,6 +88,23 @@ test("Default contentFor should set content", function() {
   
 });
 
+test("Children contentFor helpers should set parent layout yields", function() {
+  view = Ember.LayoutView.create({
+    template: Ember.Handlebars.compile('<section><header>{{yield header}}</header><div id="content">{{yield}}</div></section>')
+  });
+  
+  var innerView = Ember.View.create({
+    template: Ember.Handlebars.compile('{{#contentFor header}}Brain{{/contentFor}}Torso')
+  });
+  
+  view.setPath('yieldContent._default', innerView);
+  
+  Ember.run(function() {
+    appendView();
+  });
+  
+  ok(/<header>.*Brain.*<\/header>.*Torso.*/.test(view.$().html()), "content should be correctly set");
+});
 
 
 var stateManager;
@@ -117,7 +134,7 @@ test("Should respect stateManager.rootLayout", function() {
   stateManager = Ember.StateManager.create({
     rootLayout: view,
     main: Ember.LayoutState.create({
-      view: Ember.LayoutView.create({
+      viewClass: Ember.LayoutView.extend({
         template: Ember.Handlebars.compile("<p>This is some content.</p>")
       })
     })
@@ -135,25 +152,28 @@ test("Should re-enter states succesfully", function() {
   stateManager = Ember.StateManager.create({
     rootElement: '#qunit-fixture',
     main: Ember.LayoutState.create({
-      view: Ember.LayoutView.create({
+      viewClass: Ember.LayoutView.extend({
         elementId: 'main',
         template: Ember.Handlebars.compile("<div>{{yield}}</div>")
       }),
       section1: Ember.LayoutState.create({
-        view: Ember.LayoutView.create({
+        viewClass: Ember.LayoutView.extend({
           elementId: 'section1',
           template: Ember.Handlebars.compile("<section>{{yield}}</section>")
         }),
         content: Ember.LayoutState.create({
-          view: Ember.View.create({
+          viewClass: Ember.View.extend({
             elementId: 'content',
-            template: Ember.Handlebars.compile("<p>This is some content</p>")
+            template: Ember.Handlebars.compile("<p>This is some content</p>"),
+            destroy: function() {
+              this._super()
+            }
           }),
         })
       }),
       
       section2: Ember.LayoutState.create({
-        view: Ember.View.create({
+        viewClass: Ember.View.extend({
           elementId: 'section2',
           template: Ember.Handlebars.compile("<h2>Section 2</h2>")
         }),
@@ -162,23 +182,22 @@ test("Should re-enter states succesfully", function() {
     })
   });
   
-  Ember.run(function() {
-    stateManager.goToState('main.section1.content');
-  });
   
-  ok(stateManager.main.section1.content.active, 'State is acive.');
-  
-  Ember.run(function() {
-    stateManager.goToState('main.section2');
-  });
-  
-  ok(stateManager.main.section2.active, 'State is acive.');
-  
-  Ember.run(function() {
-    stateManager.goToState('main.section1.content');
-  });
-  
-  ok(stateManager.main.section1.content.active, 'State is acive.');
+  for(var i = 0; i < 3; i++) {
+    Ember.run(function() {
+      stateManager.goToState('main.section1.content');
+    });
+    
+    ok(stateManager.main.section1.content.active, 'section1 state is acive');
+    ok(/.*This is some content.*/.test($('#qunit-fixture').html()), "section1 content should be set correctly");
+    
+    Ember.run(function() {
+      stateManager.goToState('main.section2');
+    });
+    
+    ok(stateManager.main.section2.active, 'section2 state is acive');
+    ok(/.*Section 2.*/.test($('#qunit-fixture').html()), "section2 content should be set correctly");
+  }
   
 });
 

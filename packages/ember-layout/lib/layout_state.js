@@ -6,9 +6,9 @@ Ember.LayoutState = Ember.State.extend({
   contentKey: '_default',
   
   init: function() {
-    var view = get(this, 'view');
-    if(view) {
-      layoutStates = get(view, 'layoutStates');
+    var viewClass = get(this, 'viewClass');
+    if(viewClass) {
+      layoutStates = get(viewClass, 'layoutStates');
       set(this, 'states', layoutStates);
     }
     
@@ -17,18 +17,24 @@ Ember.LayoutState = Ember.State.extend({
 
   enter: function(stateManager, transition) {
     this._super(stateManager, transition);
+    
     set(this, 'active', true);
-    var view = get(this, 'view'), root, childViews;
+    
+    var viewClass = get(this, 'viewClass'), view;
+    ember_assert('view cannot be set directly, use viewClass instead', !this.get('view'));
+    ember_assert('viewClass must extend Ember.View', Ember.View.detect(viewClass));
+    view = this.createView(stateManager, transition);
+    this.set('view', view);
     
     if (view) {
       ember_assert('view must be an Ember.View', view instanceof Ember.View);
 
-      var ancestor = this.get('ancestor');
       // if there is another layout state in the hierarchy, we set
       // the yieldContent of it's layout
-      var layout = ancestor && get(ancestor, 'view') || stateManager.get('rootLayout');
+      var layout = this.get('layout') || stateManager.get('rootLayout');
       if(layout) {
         var yieldContent = layout.get('yieldContent');
+        if(!yieldContent) debugger;
         yieldContent.set(this.contentKey, view);
       }
       // otherwise we just append to the rootElement on the
@@ -41,30 +47,34 @@ Ember.LayoutState = Ember.State.extend({
   },
 
   exit: function(stateManager, transition) {
-    this._super(stateManager, transition);
     var view = get(this, 'view');
 
-    if (view) {
-      var ancestor = this.get('ancestor');
-      if(ancestor) {
-        var ancestorView = get(ancestor, 'view');
-        var yieldContent = ancestorView.get('yieldContent');
-        yieldContent.set(this.contentKey, null);
-      }
-      else {
-        view.remove();
-      }
+    var layout = this.get('layout') || stateManager.get('rootLayout');
+    if(layout) {
+      var yieldContent = layout.get('yieldContent');
+      yieldContent.set(this.contentKey, null);
     }
+    else {
+      view.remove();
+    }
+    set(this, 'view', null);
     set(this, 'active', false);
+    this._super(stateManager, transition);
   },
   
-  // Recursively find the first parent layout state
-  // with a view to append to
-  ancestor: Ember.computed(function() {
+  // Called during state entry. Creates the view
+  // that will be displayed. Can be overridden
+  // to initialize the view
+  createView: function(stateManager, transition) {
+    return this.get('viewClass').create();
+  },
+    
+  // Recursively find the first parent state with a layout
+  layout: Ember.computed(function() {
     var state = this.get('parentState');
-    while(state && !state.get('view')) {
+    while(state && !state.get('view') && !(state.get('view') instanceof Ember.LayoutView)) {
       state = state.get('parentState');
     }
-    return state;
+    return state && state.get('view');
   }).property()
 });
