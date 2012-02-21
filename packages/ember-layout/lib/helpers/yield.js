@@ -110,7 +110,7 @@ Ember.Handlebars.contentForHelper = Ember.Object.create({
     }
   }
   
-})
+});
 
 Ember.Handlebars.registerHelper('yield', Ember.Handlebars.yieldHelper.helper);
 Ember.Handlebars.registerHelper('contentFor', Ember.Handlebars.contentForHelper.helper);
