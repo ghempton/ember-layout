@@ -38,7 +38,6 @@ Ember.LayoutState = Ember.State.extend({
       var layout = this.get('layout') || stateManager.get('rootLayout');
       if(layout) {
         var yieldContent = layout.get('yieldContent');
-        if(!yieldContent) debugger;
         yieldContent.set(this.contentKey, view);
       }
       // otherwise we just append to the rootElement on the

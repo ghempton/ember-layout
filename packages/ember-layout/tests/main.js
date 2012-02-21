@@ -104,8 +104,6 @@ test("Children contentFor helpers should set parent layout yields", function() {
   });
   
   ok(/<header>.*Brain.*<\/header>.*Torso.*/.test(view.$().html()), "content should be correctly set");
-  
-  debugger;
 });
 
 
