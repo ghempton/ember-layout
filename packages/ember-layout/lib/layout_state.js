@@ -1,9 +1,23 @@
 var get = Ember.get, set = Ember.set;
 
+/**
+  @class
+  A convenient extension of Ember.State which makes it easy
+  to swap out dynamic content during state transitions.
+ */
 Ember.LayoutState = Ember.State.extend({
+  /**
+    Convenience property to bind to.
+   */
   active: false,
+  
   isViewState: true,
-  contentKey: '_default',
+  
+  /**
+    The property to set in the nearest parent view
+    when this state is entered.
+   */
+  contentPath: 'content',
   
   init: function() {
     // This is currently experimental. We allow
@@ -26,19 +40,18 @@ Ember.LayoutState = Ember.State.extend({
     
     var viewClass = get(this, 'viewClass'), view;
     ember_assert('view cannot be set directly, use viewClass instead', !this.get('view'));
-    ember_assert('viewClass must extend Ember.View', Ember.View.detect(viewClass));
     view = this.createView(stateManager, transition);
     this.set('view', view);
     
     if (view) {
       ember_assert('view must be an Ember.View', view instanceof Ember.View);
 
-      // if there is another layout state in the hierarchy, we set
-      // the yieldContent of it's layout
-      var layout = this.get('layout') || stateManager.get('rootLayout');
-      if(layout) {
-        var yieldContent = layout.get('yieldContent');
-        yieldContent.set(this.contentKey, view);
+
+      // if there is another view in the hierarchy then
+      // set its content
+      var parentView = get(this, 'parentView') || get(stateManager, 'rootView');
+      if(parentView) {
+        Ember.setPath(parentView, get(this, 'contentPath'), view);
       }
       // otherwise we just append to the rootElement on the
       // state manager
@@ -52,10 +65,9 @@ Ember.LayoutState = Ember.State.extend({
   exit: function(stateManager, transition) {
     var view = get(this, 'view');
 
-    var layout = this.get('layout') || stateManager.get('rootLayout');
-    if(layout) {
-      var yieldContent = layout.get('yieldContent');
-      yieldContent.set(this.contentKey, null);
+    var parentView = get(this, 'parentView') || get(stateManager, 'rootView');
+    if(parentView) {
+      Ember.setPath(parentView, get(this, 'contentPath'), null);
     }
     else {
       view.remove();
@@ -65,17 +77,23 @@ Ember.LayoutState = Ember.State.extend({
     this._super(stateManager, transition);
   },
   
-  // Called during state entry. Creates the view
-  // that will be displayed. Can be overridden
-  // to initialize the view
+  /**
+    Instantiates viewClass. This method can be
+    overridden.
+   */
   createView: function(stateManager, transition) {
-    return this.get('viewClass').create();
+    var viewClass = get(this, 'viewClass');
+    ember_assert('viewClass must extend Ember.View', Ember.View.detect(viewClass));
+    return viewClass.create();
   },
     
-  // Recursively find the first parent state with a layout
-  layout: Ember.computed(function() {
+  /**
+    Recursively find the nearest parent view
+    in the state hierarchy
+   */
+  parentView: Ember.computed(function() {
     var state = this.get('parentState');
-    while(state && !state.get('view') && !(state.get('view') instanceof Ember.LayoutView)) {
+    while(state && !state.get('view')) {
       state = state.get('parentState');
     }
     return state && state.get('view');

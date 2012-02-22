@@ -1,13 +1,17 @@
 ## Ember Layout
 
-Provides an intuitive layout mechanism for [Ember.js](http://emberjs.com).
+Provides an intuitive layout mechanism for [Ember.js](http://emberjs.com). The core addition is a `{{dynamicView}}` handlebars helper which allows for child views to be dynamically swapped out from anywhere in the template.
+
+### How It Works
+
+The `{{dynamicView}}` binds itself to the `content` property of its containg view. When the content property is set to a subclass of `Ember.View`, the dynamic view helper's contents will be replaced with the specified view. To use a different property, simply specify it as follows: `{{dynamicView propertyName}}`.
 
 ### Example Layout
 
 Code for the view:
 
 ```
-App.layout = Ember.LayoutView.create({
+App.layout = Ember.View.create({
   templateName: 'main-layout'
 });
 
@@ -18,44 +22,36 @@ Associated template:
 ```
 <section>
   <header>
-    {{yield header}}
+    {{dynamicView header}}
   </header>
   
   <div id="content">
-    {{yield}}
+    {{dynamicView}}
   </div>
 </section>
 ```
 
-The `{{yield}}` regions of the layout can now be dynamically populated by child templates or in code:
+The `{{dynamicView}}` regions of the view can now be dynamically populated  in code:
 
 ```
 App.headerView = Ember.View.create( ... );
-App.layout.setPath('yieldContent.header', headerView);
+App.layout.set('header', headerView);
 ```
 
-Or in the template of a child view:
-
-```
-{{#contentFor header}}
-  <h2>This is part of the header</h2>
-{{#/content}}
-
-This is in the main content.
-```
+In fact, swapping out the view in this example is as simple as setting the `header` or `content` properties of the view. The `content` property is the default name of the property bound by `{{dynamicView}}` if none is specified.
 
 ### Layout States
 
-Ember.Layout also integrates with Ember's StateManager (and consequently, [Ember.RouteManager](https://github.com/ghempton/ember-routemanager)):
+Ember.Layout also integrates with Ember's StateManager (and consequently plays well with [Ember.RouteManager](https://github.com/ghempton/ember-routemanager)):
 
 ```
 App.stateManager = Ember.StateManager.create({
-  rootLayout: App.layout,
+  rootView: App.layout,
   section1: Ember.LayoutState.create({
-    view: App.section1
+    viewClass: App.Section1
   }),
   section2: Ember.LayoutState.create({
-    view: App.section2
+    viewClass: App.Section2
   })
 })
 
