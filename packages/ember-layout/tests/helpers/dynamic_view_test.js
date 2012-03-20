@@ -31,7 +31,7 @@ test("basic dynamic view", function() {
     appendView();
   });
   
-  var container = view.get('_childViews').objectAt(0);
+  var container = view.get('childViews').objectAt(0);
   ok(container && container instanceof Ember.Handlebars.FrameView, "container should exist.");
   
   ok(/<section>.*Brogrammer.*<\/section>.*/.test(view.$().html()), "content should be correctly set");
@@ -57,10 +57,10 @@ test("nested dynamic views", function() {
     appendView();
   });
   
-  var container = view.get('_childViews').objectAt(0);
+  var container = view.get('childViews').objectAt(0);
   ok(container && container instanceof Ember.Handlebars.FrameView, "container should exist.");
   
-  var innercontainer = innerView.get('_childViews').objectAt(0);
+  var innercontainer = innerView.get('childViews').objectAt(0);
   ok(innercontainer && innercontainer instanceof Ember.Handlebars.FrameView, "container should exist.")
   
   ok(/<section>.*<header>.*Brogrammer.*<\/header>.*<\/section>.*/.test(view.$().html()), "content should be correctly set");
@@ -81,13 +81,13 @@ test("dynamic views allow custom property paths", function() {
     appendView();
   });
   
-  var headerContainer = view.get('_childViews').objectAt(0);
+  var headerContainer = view.get('childViews').objectAt(0);
   ok(headerContainer && headerContainer instanceof Ember.Handlebars.FrameView, "container should exist.");
   
-  var container = view.get('_childViews').objectAt(1);
+  var container = view.get('childViews').objectAt(1);
   ok(container && container instanceof Ember.Handlebars.FrameView, "container should exist.");
   
-  equals(headerContainer.get('_childViews').objectAt(0), headerView, "named dynamic view should contain headerView");
+  equals(headerContainer.get('childViews').objectAt(0), headerView, "named dynamic view should contain headerView");
   equals(container.get('_childViews').get('length'), 0, "default dynamic view should have no content")
 });
 
