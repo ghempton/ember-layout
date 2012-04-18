@@ -3,7 +3,7 @@ var get = Ember.get, set = Ember.set, meta = Ember.meta;
 /**
   @class
   This is an extension of Ember.ContainerView who's content
-  is restricted to a single child dicated by a property
+  is restricted to a single child dictated by a property
   on another view.
  */
 Ember.Handlebars.FrameView = Ember.ContainerView.extend({
