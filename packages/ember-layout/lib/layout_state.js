@@ -71,6 +71,7 @@ Ember.LayoutState = Ember.State.extend({
     else {
       view.remove();
     }
+    view.destroy();
     set(this, 'view', null);
     set(this, 'active', false);
     this._super(stateManager, transition);

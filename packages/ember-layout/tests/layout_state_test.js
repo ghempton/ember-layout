@@ -127,3 +127,62 @@ test("views can set sub-states using the layoutState property", function() {
   ok(/.*Section 1*/.test($('#qunit-fixture').html()), "section1 content should be set correctly");
   
 });
+
+test("view should be destroyed", function() {
+  
+  var sectionView = null;
+  var contentView = null;
+  
+  stateManager = Ember.StateManager.create({
+    rootElement: '#qunit-fixture',
+    main: Ember.LayoutState.create({
+      viewClass: Ember.View.extend({
+        elementId: 'main',
+        template: Ember.Handlebars.compile("<div>{{dynamicView}}</div>")
+      }),
+      section1: Ember.LayoutState.create({
+        exit: function(stateManager, transition) {
+          sectionView = this.get('view');
+          this._super();
+        },
+        viewClass: Ember.View.extend({
+          elementId: 'section1',
+          template: Ember.Handlebars.compile("<section>{{dynamicView}}</section>")
+        }),
+        content: Ember.LayoutState.create({
+          exit: function(stateManager, transition) {
+            contentView = this.get('view');
+            this._super();
+          },
+          viewClass: Ember.View.extend({
+            elementId: 'content',
+            template: Ember.Handlebars.compile("<p>This is some content</p>"),
+            destroy: function() {
+              this._super()
+            }
+          }),
+        })
+      }),
+      
+      section2: Ember.LayoutState.create({
+        viewClass: Ember.View.extend({
+          elementId: 'section2',
+          template: Ember.Handlebars.compile("<h2>Section 2</h2>")
+        }),
+      })
+
+    })
+  });
+  
+  Ember.run(function() {
+    stateManager.goToState('main.section1.content');
+  });
+  
+  Ember.run(function() {
+    stateManager.goToState('main.section2');
+  });
+  
+  ok(sectionView.isDestroyed, 'view should be destroyed');
+  ok(contentView.isDestroyed, 'view should be destroyed');
+    
+});
