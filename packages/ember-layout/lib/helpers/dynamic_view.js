@@ -36,7 +36,7 @@ Ember.Handlebars.FrameView = Ember.ContainerView.extend({
   contentDidUpdate: function() {
     var blockContainer = this.get('blockContainer');
     var view = blockContainer.getPath(get(this, 'childPath'));
-    ember_assert(view instanceof Ember.View, "dynamicView's content must be set to a subclass of Ember.View'");
+    Ember.assert(view instanceof Ember.View, "dynamicView's content must be set to a subclass of Ember.View'");
     var childViews = this.get('_childViews');
     var len = childViews.get('length');
     var views = view ? [view] : [];

@@ -39,12 +39,12 @@ Ember.LayoutState = Ember.State.extend({
     set(this, 'active', true);
     
     var viewClass = get(this, 'viewClass'), view;
-    ember_assert('view cannot be set directly, use viewClass instead', !this.get('view'));
+    Ember.assert('view cannot be set directly, use viewClass instead', !this.get('view'));
     view = this.createView(stateManager, transition);
     this.set('view', view);
     
     if (view) {
-      ember_assert('view must be an Ember.View', view instanceof Ember.View);
+      Ember.assert('view must be an Ember.View', view instanceof Ember.View);
 
       // if there is another view in the hierarchy then
       // set its content
@@ -83,7 +83,7 @@ Ember.LayoutState = Ember.State.extend({
    */
   createView: function(stateManager, transition) {
     var viewClass = get(this, 'viewClass');
-    ember_assert('viewClass must extend Ember.View', Ember.View.detect(viewClass));
+    Ember.assert('viewClass must extend Ember.View', Ember.View.detect(viewClass));
     return viewClass.create();
   },
     
