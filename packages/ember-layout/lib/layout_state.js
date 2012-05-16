@@ -97,5 +97,5 @@ Ember.LayoutState = Ember.State.extend({
       state = state.get('parentState');
     }
     return state && state.get('view');
-  }).property()
+  }).property().volatile()
 });
