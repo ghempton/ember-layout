@@ -1,3 +1,5 @@
+** This library has been deprecated. [Please read this blog post](http://codebrief.com/2012/07/anatomy-of-an-ember-dot-js-app-part-i-redux-routing-and-outlets/). **
+
 ## Ember Layout
 
 Provides an intuitive layout mechanism for [Ember.js](http://emberjs.com). The core addition is a `{{dynamicView}}` handlebars helper which allows for child views to be dynamically swapped out from anywhere in the template.
