@@ -6,7 +6,7 @@ Provides an intuitive layout mechanism for [Ember.js](http://emberjs.com). The c
 
 ### How It Works
 
-The `{{dynamicView}}` binds itself to the `content` property of its containg view. When the content property is set to a subclass of `Ember.View`, the dynamic view helper's contents will be replaced to reflect the new view. This property can be changed at any time. To use a different property, simply specify it as follows: `{{dynamicView propertyName}}`.
+The `{{dynamicView}}` binds itself to the `content` property of its containing view. When the content property is set to a subclass of `Ember.View`, the dynamic view helper's contents will be replaced to reflect the new view. This property can be changed at any time. To use a different property, simply specify it as follows: `{{dynamicView propertyName}}`.
 
 ### Example Layout
 
