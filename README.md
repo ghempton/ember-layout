@@ -1,4 +1,4 @@
-** This library has been deprecated. [Please read this blog post](http://codebrief.com/2012/07/anatomy-of-an-ember-dot-js-app-part-i-redux-routing-and-outlets/). **
+**This library has been deprecated. [Please read this blog post](http://codebrief.com/2012/07/anatomy-of-an-ember-dot-js-app-part-i-redux-routing-and-outlets/).**
 
 ## Ember Layout
 
